@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func CanonicalBuoyID(value string) string { return value }
+func CanonicalBuoyID(value string) string { return strings.ToLower(strings.TrimSpace(value)) }
 
 var (
 	ErrInvalidReading     = errors.New("invalid reading")
