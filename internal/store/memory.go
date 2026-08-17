@@ -74,7 +74,9 @@ func (m *Memory) RecentReadings(ctx context.Context, buoyID string, limit int) (
 	if limit <= 0 || limit > len(items) {
 		limit = len(items)
 	}
-	window := items[len(items)-limit:]
+	// 复制后再反转，避免就地改写共享底层数组而污染已存数据
+	window := make([]model.Reading, limit)
+	copy(window, items[len(items)-limit:])
 	for left, right := 0, len(window)-1; left < right; left, right = left+1, right-1 {
 		window[left], window[right] = window[right], window[left]
 	}

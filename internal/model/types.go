@@ -38,6 +38,11 @@ type SensorSummary struct {
 }
 
 func (s *SensorSummary) Add(reading Reading) {
+	// 首样本之前 Min/Max 均为零值，无法表示正数下界与负数上界，故用首样本初始化区间
+	if s.Count == 0 {
+		s.Min = reading.Value
+		s.Max = reading.Value
+	}
 	s.Count++
 	s.Mean += reading.Value
 	if reading.Value < s.Min {

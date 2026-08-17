@@ -76,12 +76,8 @@ func (s *Service) Ingest(ctx context.Context, r model.Reading) (model.Reading, e
 }
 
 func (s *Service) Recent(ctx context.Context, buoyID string, limit int) ([]model.Reading, error) {
-	readings, err := s.repo.RecentReadings(ctx, buoyID, limit)
-	if err != nil {
-		return nil, err
-	}
-	sort.SliceStable(readings, func(i, j int) bool { return readings[i].Sequence < readings[j].Sequence })
-	return readings, nil
+	// 存储层已按最新到最旧返回只读副本，此处不再重排，避免改写顺序
+	return s.repo.RecentReadings(ctx, buoyID, limit)
 }
 func (s *Service) Events(ctx context.Context, buoyID string) ([]model.Event, error) {
 	return s.repo.Events(ctx, buoyID)
