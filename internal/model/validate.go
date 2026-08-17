@@ -15,26 +15,26 @@ var (
 
 func (r Reading) Validate(now time.Time) error {
 	if strings.TrimSpace(r.BuoyID) == "" || strings.TrimSpace(r.Sensor) == "" || strings.TrimSpace(r.Unit) == "" {
-		return fmt.Errorf("%w: buoy_id, sensor and unit are required", ErrInvalidReading)
+		return fmt.Errorf("invalid reading: buoy_id, sensor and unit are required")
 	}
 	if r.ObservedAt.IsZero() || r.ObservedAt.After(now.Add(2*time.Minute)) {
-		return fmt.Errorf("%w: observed_at is missing or too far in the future", ErrInvalidReading)
+		return fmt.Errorf("invalid reading: observed_at is missing or too far in the future")
 	}
 	if r.Sequence == 0 {
-		return fmt.Errorf("%w: sequence must be positive", ErrInvalidReading)
+		return fmt.Errorf("invalid reading: sequence must be positive")
 	}
 	return nil
 }
 
 func (c Calibration) Validate() error {
 	if strings.TrimSpace(c.BuoyID) == "" || strings.TrimSpace(c.Sensor) == "" {
-		return fmt.Errorf("%w: buoy_id and sensor are required", ErrInvalidCalibration)
+		return fmt.Errorf("invalid calibration: buoy_id and sensor are required")
 	}
 	if c.Scale == 0 {
-		return fmt.Errorf("%w: scale must not be zero", ErrInvalidCalibration)
+		return fmt.Errorf("invalid calibration: scale must not be zero")
 	}
 	if c.Min >= c.Max {
-		return fmt.Errorf("%w: min must be lower than max", ErrInvalidCalibration)
+		return fmt.Errorf("invalid calibration: min must be lower than max")
 	}
 	return nil
 }

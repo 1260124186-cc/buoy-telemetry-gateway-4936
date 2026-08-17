@@ -1,4 +1,4 @@
-# buoy-telemetry-gateway-4936 Docker 交付说明
+# buoy-telemetry-gateway__001 Docker 交付说明
 
 ## 项目概览
 - Buoy Telemetry Gateway is a small Go HTTP service for coastal engineering teams that receive measurements from autonomous buoys. It validates incoming readings, applies per-sensor 
@@ -20,8 +20,8 @@ go run ./cmd/server
 ## Docker 构建
 
 ```bash
-./build_benzhi_docker.sh buoy-telemetry-gateway-4936-benzhi linux/amd64
-docker run --rm -it buoy-telemetry-gateway-4936-benzhi bash
+./build_benzhi_docker.sh buoy-telemetry-gateway__001-benzhi linux/amd64
+docker run --rm -it buoy-telemetry-gateway__001-benzhi bash
 ```
 
 ## 环境
@@ -29,4 +29,4 @@ docker run --rm -it buoy-telemetry-gateway-4936-benzhi bash
 - 基础镜像: `golang:1.26`
 - 依赖在镜像构建阶段预下载，容器内可直接执行 Go 构建和测试命令。
 - 代码目录: `/app`
-- 源码中检测到的服务端口: `8080`
+- 源码中检测到的服务端口: `20`, `8080`
