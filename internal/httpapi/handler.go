@@ -1,7 +1,6 @@
 package httpapi
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -34,7 +33,7 @@ func (h *Handler) calibration(w http.ResponseWriter, r *http.Request) {
 	if !decode(w, r, &c) {
 		return
 	}
-	if err := h.service.SetCalibration(context.Background(), c); err != nil {
+	if err := h.service.SetCalibration(r.Context(), c); err != nil {
 		writeError(w, err)
 		return
 	}
@@ -45,7 +44,7 @@ func (h *Handler) reading(w http.ResponseWriter, r *http.Request) {
 	if !decode(w, r, &in) {
 		return
 	}
-	out, err := h.service.Ingest(context.Background(), in)
+	out, err := h.service.Ingest(r.Context(), in)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -54,7 +53,7 @@ func (h *Handler) reading(w http.ResponseWriter, r *http.Request) {
 }
 func (h *Handler) recent(w http.ResponseWriter, r *http.Request) {
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	out, err := h.service.Recent(context.Background(), r.PathValue("id"), limit)
+	out, err := h.service.Recent(r.Context(), r.PathValue("id"), limit)
 	if err != nil {
 		writeError(w, err)
 		return
@@ -62,7 +61,7 @@ func (h *Handler) recent(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, out)
 }
 func (h *Handler) summary(w http.ResponseWriter, r *http.Request) {
-	out, err := h.service.Summary(context.Background(), r.PathValue("id"))
+	out, err := h.service.Summary(r.Context(), r.PathValue("id"))
 	if err != nil {
 		writeError(w, err)
 		return
@@ -70,7 +69,7 @@ func (h *Handler) summary(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, out)
 }
 func (h *Handler) events(w http.ResponseWriter, r *http.Request) {
-	out, err := h.service.Events(context.Background(), r.URL.Query().Get("buoy_id"))
+	out, err := h.service.Events(r.Context(), r.URL.Query().Get("buoy_id"))
 	if err != nil {
 		writeError(w, err)
 		return

@@ -27,6 +27,9 @@ func NewMemory(maxReadings int) *Memory {
 func key(buoyID, sensor string) string { return buoyID + "\x00" + sensor }
 
 func (m *Memory) PutCalibration(ctx context.Context, c model.Calibration) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.calibrations[key(c.BuoyID, c.Sensor)] = c
@@ -34,6 +37,9 @@ func (m *Memory) PutCalibration(ctx context.Context, c model.Calibration) error 
 }
 
 func (m *Memory) Calibration(ctx context.Context, buoyID, sensor string) (model.Calibration, error) {
+	if err := ctx.Err(); err != nil {
+		return model.Calibration{}, err
+	}
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	c, ok := m.calibrations[key(buoyID, sensor)]
@@ -44,6 +50,9 @@ func (m *Memory) Calibration(ctx context.Context, buoyID, sensor string) (model.
 }
 
 func (m *Memory) AppendReading(ctx context.Context, r model.Reading) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	items := append(m.readings[r.BuoyID], r)
@@ -56,6 +65,9 @@ func (m *Memory) AppendReading(ctx context.Context, r model.Reading) error {
 }
 
 func (m *Memory) RecentReadings(ctx context.Context, buoyID string, limit int) ([]model.Reading, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	items := m.readings[buoyID]
@@ -70,6 +82,9 @@ func (m *Memory) RecentReadings(ctx context.Context, buoyID string, limit int) (
 }
 
 func (m *Memory) AppendEvent(ctx context.Context, event model.Event) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.events = append(m.events, event)
@@ -77,6 +92,9 @@ func (m *Memory) AppendEvent(ctx context.Context, event model.Event) error {
 }
 
 func (m *Memory) Events(ctx context.Context, buoyID string) ([]model.Event, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	out := make([]model.Event, 0, len(m.events))
