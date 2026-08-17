@@ -1,11 +1,14 @@
 package model
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
 	"time"
 )
+
+func ValidateContext(context.Context) error { return nil }
 
 var (
 	ErrInvalidReading     = errors.New("invalid reading")
