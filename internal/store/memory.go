@@ -24,7 +24,7 @@ func NewMemory(maxReadings int) *Memory {
 	return &Memory{maxReadings: maxReadings, readings: make(map[string][]model.Reading), calibrations: make(map[string]model.Calibration)}
 }
 
-func key(buoyID, sensor string) string { return buoyID + "\x00" + sensor }
+func key(buoyID, sensor string) string { return model.CanonicalBuoyID(buoyID) + "\x00" + sensor }
 
 func (m *Memory) PutCalibration(ctx context.Context, c model.Calibration) error {
 	if err := ctx.Err(); err != nil {
@@ -55,12 +55,12 @@ func (m *Memory) AppendReading(ctx context.Context, r model.Reading) error {
 	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	items := append(m.readings[r.BuoyID], r)
+	items := append(m.readings[model.CanonicalBuoyID(r.BuoyID)], r)
 	sort.SliceStable(items, func(i, j int) bool { return items[i].ObservedAt.Before(items[j].ObservedAt) })
 	if len(items) > m.maxReadings {
 		items = append([]model.Reading(nil), items[len(items)-m.maxReadings:]...)
 	}
-	m.readings[r.BuoyID] = items
+	m.readings[model.CanonicalBuoyID(r.BuoyID)] = items
 	return nil
 }
 
@@ -70,7 +70,7 @@ func (m *Memory) RecentReadings(ctx context.Context, buoyID string, limit int) (
 	}
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	items := m.readings[buoyID]
+	items := m.readings[model.CanonicalBuoyID(buoyID)]
 	if limit <= 0 || limit > len(items) {
 		limit = len(items)
 	}

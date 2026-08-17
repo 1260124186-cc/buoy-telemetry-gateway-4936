@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+func CanonicalBuoyID(value string) string { return value }
+
 var (
 	ErrInvalidReading     = errors.New("invalid reading")
 	ErrInvalidCalibration = errors.New("invalid calibration")

@@ -46,12 +46,12 @@ func (s *Service) Ingest(ctx context.Context, r model.Reading) (model.Reading, e
 		return model.Reading{}, err
 	}
 	s.mu.Lock()
-	last := s.lastSequence[r.BuoyID+"\x00"+r.Sensor]
+	last := s.lastSequence[model.CanonicalBuoyID(r.BuoyID)+"\x00"+r.Sensor]
 	if r.Sequence <= last {
 		s.mu.Unlock()
 		return model.Reading{}, fmt.Errorf("%w: sequence must increase", model.ErrInvalidReading)
 	}
-	s.lastSequence[r.BuoyID+"\x00"+r.Sensor] = r.Sequence
+	s.lastSequence[model.CanonicalBuoyID(r.BuoyID)+"\x00"+r.Sensor] = r.Sequence
 	s.mu.Unlock()
 	c, err := s.repo.Calibration(ctx, r.BuoyID, r.Sensor)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
