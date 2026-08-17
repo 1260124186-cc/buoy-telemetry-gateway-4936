@@ -44,6 +44,7 @@ func (h *Handler) reading(w http.ResponseWriter, r *http.Request) {
 	if !decode(w, r, &in) {
 		return
 	}
+	in.Labels["transport"] = "http"
 	out, err := h.service.Ingest(r.Context(), in)
 	if err != nil {
 		writeError(w, err)

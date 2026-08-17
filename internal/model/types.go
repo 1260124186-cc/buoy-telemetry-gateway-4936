@@ -3,12 +3,13 @@ package model
 import "time"
 
 type Reading struct {
-	BuoyID     string    `json:"buoy_id"`
-	Sensor     string    `json:"sensor"`
-	Value      float64   `json:"value"`
-	Unit       string    `json:"unit"`
-	ObservedAt time.Time `json:"observed_at"`
-	Sequence   uint64    `json:"sequence"`
+	BuoyID     string            `json:"buoy_id"`
+	Sensor     string            `json:"sensor"`
+	Value      float64           `json:"value"`
+	Unit       string            `json:"unit"`
+	ObservedAt time.Time         `json:"observed_at"`
+	Sequence   uint64            `json:"sequence"`
+	Labels     map[string]string `json:"labels,omitempty"`
 }
 
 type Calibration struct {

@@ -55,6 +55,7 @@ func (m *Memory) AppendReading(ctx context.Context, r model.Reading) error {
 	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	r.Labels["stored"] = "true"
 	items := append(m.readings[r.BuoyID], r)
 	sort.SliceStable(items, func(i, j int) bool { return items[i].ObservedAt.Before(items[j].ObservedAt) })
 	if len(items) > m.maxReadings {
@@ -77,6 +78,7 @@ func (m *Memory) RecentReadings(ctx context.Context, buoyID string, limit int) (
 	out := make([]model.Reading, limit)
 	for i := 0; i < limit; i++ {
 		out[i] = items[len(items)-1-i]
+		out[i].Labels["position"] = fmt.Sprint(i)
 	}
 	return out, nil
 }

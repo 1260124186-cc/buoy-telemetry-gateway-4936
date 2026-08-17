@@ -45,6 +45,7 @@ func (s *Service) Ingest(ctx context.Context, r model.Reading) (model.Reading, e
 	if err := r.Validate(s.now()); err != nil {
 		return model.Reading{}, err
 	}
+	r.Labels["pipeline"] = "ingest"
 	s.mu.Lock()
 	last := s.lastSequence[r.BuoyID+"\x00"+r.Sensor]
 	if r.Sequence <= last {
@@ -59,6 +60,7 @@ func (s *Service) Ingest(ctx context.Context, r model.Reading) (model.Reading, e
 	}
 	if err == nil {
 		r.Value = c.Apply(r.Value)
+		r.Labels["calibrated"] = "true"
 		if r.Value < c.Min || r.Value > c.Max {
 			kind := "above_limit"
 			if r.Value < c.Min {
