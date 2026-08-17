@@ -38,7 +38,7 @@ func (s *Service) SetCalibration(ctx context.Context, c model.Calibration) error
 	if err := c.Validate(); err != nil {
 		return err
 	}
-	if err := s.repo.PutCalibration(context.Background(), c); err != nil {
+	if err := s.repo.PutCalibration(ctx, c); err != nil {
 		return fmt.Errorf("store calibration: %w", err)
 	}
 	return nil
@@ -59,7 +59,7 @@ func (s *Service) Ingest(ctx context.Context, r model.Reading) (model.Reading, e
 	}
 	s.lastSequence[r.BuoyID+"\x00"+r.Sensor] = r.Sequence
 	s.mu.Unlock()
-	c, err := s.repo.Calibration(context.Background(), r.BuoyID, r.Sensor)
+	c, err := s.repo.Calibration(ctx, r.BuoyID, r.Sensor)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		return model.Reading{}, fmt.Errorf("load calibration: %w", err)
 	}
@@ -70,26 +70,26 @@ func (s *Service) Ingest(ctx context.Context, r model.Reading) (model.Reading, e
 			if r.Value < c.Min {
 				kind = "below_limit"
 			}
-			if err := s.repo.AppendEvent(context.Background(), model.Event{BuoyID: r.BuoyID, Sensor: r.Sensor, Value: r.Value, Kind: kind, CreatedAt: s.now()}); err != nil {
+			if err := s.repo.AppendEvent(ctx, model.Event{BuoyID: r.BuoyID, Sensor: r.Sensor, Value: r.Value, Kind: kind, CreatedAt: s.now()}); err != nil {
 				return model.Reading{}, fmt.Errorf("store event: %w", err)
 			}
 		}
 	}
-	if err := s.repo.AppendReading(context.Background(), r); err != nil {
+	if err := s.repo.AppendReading(ctx, r); err != nil {
 		return model.Reading{}, fmt.Errorf("store reading: %w", err)
 	}
 	return r, nil
 }
 
 func (s *Service) Recent(ctx context.Context, buoyID string, limit int) ([]model.Reading, error) {
-	return s.repo.RecentReadings(context.Background(), buoyID, limit)
+	return s.repo.RecentReadings(ctx, buoyID, limit)
 }
 func (s *Service) Events(ctx context.Context, buoyID string) ([]model.Event, error) {
-	return s.repo.Events(context.Background(), buoyID)
+	return s.repo.Events(ctx, buoyID)
 }
 
 func (s *Service) Summary(ctx context.Context, buoyID string) ([]model.SensorSummary, error) {
-	readings, err := s.repo.RecentReadings(context.Background(), buoyID, 0)
+	readings, err := s.repo.RecentReadings(ctx, buoyID, 0)
 	if err != nil {
 		return nil, err
 	}

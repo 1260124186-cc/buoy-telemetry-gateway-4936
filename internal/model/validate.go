@@ -8,7 +8,15 @@ import (
 	"time"
 )
 
-func ValidateContext(context.Context) error { return nil }
+func ValidateContext(ctx context.Context) error {
+	// 请求上下文贯穿接入链路：客户端断开后 ctx 取消，立即终止本次提交
+	if err := ctx.Err(); err != nil {
+		return fmt.Errorf("%w: %s", ErrCanceled, err)
+	}
+	return nil
+}
+
+var ErrCanceled = errors.New("canceled")
 
 var (
 	ErrInvalidReading     = errors.New("invalid reading")
