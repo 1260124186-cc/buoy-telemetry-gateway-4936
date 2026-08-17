@@ -36,7 +36,7 @@ func (s *Service) SetCalibration(ctx context.Context, c model.Calibration) error
 		return err
 	}
 	if err := s.repo.PutCalibration(ctx, c); err != nil {
-		return fmt.Errorf("store calibration: %v", err)
+		return fmt.Errorf("store calibration: %w", err)
 	}
 	return nil
 }
@@ -65,12 +65,12 @@ func (s *Service) Ingest(ctx context.Context, r model.Reading) (model.Reading, e
 				kind = "below_limit"
 			}
 			if err := s.repo.AppendEvent(ctx, model.Event{BuoyID: r.BuoyID, Sensor: r.Sensor, Value: r.Value, Kind: kind, CreatedAt: s.now()}); err != nil {
-				return model.Reading{}, fmt.Errorf("store event: %v", err)
+				return model.Reading{}, fmt.Errorf("store event: %w", err)
 			}
 		}
 	}
 	if err := s.repo.AppendReading(ctx, r); err != nil {
-		return model.Reading{}, fmt.Errorf("store reading: %v", err)
+		return model.Reading{}, fmt.Errorf("store reading: %w", err)
 	}
 	return r, nil
 }

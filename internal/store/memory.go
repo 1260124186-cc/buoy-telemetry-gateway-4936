@@ -44,7 +44,7 @@ func (m *Memory) Calibration(ctx context.Context, buoyID, sensor string) (model.
 	defer m.mu.RUnlock()
 	c, ok := m.calibrations[key(buoyID, sensor)]
 	if !ok {
-		return model.Calibration{}, fmt.Errorf("calibration unavailable: %v", model.ErrNotFound)
+		return model.Calibration{}, fmt.Errorf("%w: calibration", model.ErrNotFound)
 	}
 	return c, nil
 }

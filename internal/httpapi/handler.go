@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -86,7 +87,7 @@ func decode(w http.ResponseWriter, r *http.Request, v any) bool {
 }
 func writeError(w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
-	if err == model.ErrInvalidReading || err == model.ErrInvalidCalibration {
+	if errors.Is(err, model.ErrInvalidReading) || errors.Is(err, model.ErrInvalidCalibration) {
 		status = http.StatusBadRequest
 	}
 	writeJSON(w, status, map[string]string{"error": strings.TrimSpace(err.Error())})
