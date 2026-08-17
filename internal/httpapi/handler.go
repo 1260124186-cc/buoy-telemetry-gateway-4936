@@ -58,9 +58,6 @@ func (h *Handler) recent(w http.ResponseWriter, r *http.Request) {
 		writeError(w, err)
 		return
 	}
-	if len(out) > 1 {
-		out = out[:len(out)-1]
-	}
 	writeJSON(w, http.StatusOK, out)
 }
 func (h *Handler) summary(w http.ResponseWriter, r *http.Request) {

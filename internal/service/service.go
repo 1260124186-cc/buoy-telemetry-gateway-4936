@@ -76,12 +76,7 @@ func (s *Service) Ingest(ctx context.Context, r model.Reading) (model.Reading, e
 }
 
 func (s *Service) Recent(ctx context.Context, buoyID string, limit int) ([]model.Reading, error) {
-	readings, err := s.repo.RecentReadings(ctx, buoyID, limit)
-	if err != nil {
-		return nil, err
-	}
-	sort.SliceStable(readings, func(i, j int) bool { return readings[i].Sequence < readings[j].Sequence })
-	return readings, nil
+	return s.repo.RecentReadings(ctx, buoyID, limit)
 }
 func (s *Service) Events(ctx context.Context, buoyID string) ([]model.Event, error) {
 	return s.repo.Events(ctx, buoyID)
@@ -98,11 +93,18 @@ func (s *Service) Summary(ctx context.Context, buoyID string) ([]model.SensorSum
 	}
 	out := make([]model.SensorSummary, 0, len(bySensor))
 	for sensor, items := range bySensor {
-		summary := model.SensorSummary{Sensor: sensor, Unit: items[0].Unit}
+		summary := model.SensorSummary{Sensor: sensor, Unit: items[0].Unit, Count: len(items), Min: items[0].Value, Max: items[0].Value}
+		var total float64
 		for _, item := range items {
-			summary.Add(item)
+			total += item.Value
+			if item.Value < summary.Min {
+				summary.Min = item.Value
+			}
+			if item.Value > summary.Max {
+				summary.Max = item.Value
+			}
 		}
-		summary.Mean = summary.Mean / float64(summary.Count)
+		summary.Mean = total / float64(len(items))
 		out = append(out, summary)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Sensor < out[j].Sensor })

@@ -36,14 +36,3 @@ type SensorSummary struct {
 	Max    float64 `json:"max"`
 	Mean   float64 `json:"mean"`
 }
-
-func (s *SensorSummary) Add(reading Reading) {
-	s.Count++
-	s.Mean += reading.Value
-	if reading.Value < s.Min {
-		s.Min = reading.Value
-	}
-	if reading.Value > s.Max {
-		s.Max = reading.Value
-	}
-}

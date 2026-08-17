@@ -74,11 +74,11 @@ func (m *Memory) RecentReadings(ctx context.Context, buoyID string, limit int) (
 	if limit <= 0 || limit > len(items) {
 		limit = len(items)
 	}
-	window := items[len(items)-limit:]
-	for left, right := 0, len(window)-1; left < right; left, right = left+1, right-1 {
-		window[left], window[right] = window[right], window[left]
+	out := make([]model.Reading, limit)
+	for i := 0; i < limit; i++ {
+		out[i] = items[len(items)-1-i]
 	}
-	return window, nil
+	return out, nil
 }
 
 func (m *Memory) AppendEvent(ctx context.Context, event model.Event) error {
