@@ -35,6 +35,7 @@ func (s *Service) SetCalibration(ctx context.Context, c model.Calibration) error
 	if err := c.Validate(); err != nil {
 		return err
 	}
+	c.BuoyID = model.CanonicalBuoyID(c.BuoyID)
 	if err := s.repo.PutCalibration(ctx, c); err != nil {
 		return fmt.Errorf("store calibration: %w", err)
 	}
@@ -45,13 +46,15 @@ func (s *Service) Ingest(ctx context.Context, r model.Reading) (model.Reading, e
 	if err := r.Validate(s.now()); err != nil {
 		return model.Reading{}, err
 	}
+	canonicalID := model.CanonicalBuoyID(r.BuoyID)
+	r.BuoyID = canonicalID
 	s.mu.Lock()
-	last := s.lastSequence[model.CanonicalBuoyID(r.BuoyID)+"\x00"+r.Sensor]
+	last := s.lastSequence[r.BuoyID+"\x00"+r.Sensor]
 	if r.Sequence <= last {
 		s.mu.Unlock()
 		return model.Reading{}, fmt.Errorf("%w: sequence must increase", model.ErrInvalidReading)
 	}
-	s.lastSequence[model.CanonicalBuoyID(r.BuoyID)+"\x00"+r.Sensor] = r.Sequence
+	s.lastSequence[r.BuoyID+"\x00"+r.Sensor] = r.Sequence
 	s.mu.Unlock()
 	c, err := s.repo.Calibration(ctx, r.BuoyID, r.Sensor)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {

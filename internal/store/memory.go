@@ -53,14 +53,15 @@ func (m *Memory) AppendReading(ctx context.Context, r model.Reading) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
+	r.BuoyID = model.CanonicalBuoyID(r.BuoyID)
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	items := append(m.readings[model.CanonicalBuoyID(r.BuoyID)], r)
+	items := append(m.readings[r.BuoyID], r)
 	sort.SliceStable(items, func(i, j int) bool { return items[i].ObservedAt.Before(items[j].ObservedAt) })
 	if len(items) > m.maxReadings {
 		items = append([]model.Reading(nil), items[len(items)-m.maxReadings:]...)
 	}
-	m.readings[model.CanonicalBuoyID(r.BuoyID)] = items
+	m.readings[r.BuoyID] = items
 	return nil
 }
 
@@ -97,9 +98,10 @@ func (m *Memory) Events(ctx context.Context, buoyID string) ([]model.Event, erro
 	}
 	m.mu.RLock()
 	defer m.mu.RUnlock()
+	canonicalID := model.CanonicalBuoyID(buoyID)
 	out := make([]model.Event, 0, len(m.events))
 	for _, event := range m.events {
-		if buoyID == "" || event.BuoyID == buoyID {
+		if canonicalID == "" || event.BuoyID == canonicalID {
 			out = append(out, event)
 		}
 	}
